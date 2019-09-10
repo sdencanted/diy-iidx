@@ -27,6 +27,10 @@ uint8_t reactiveLightPin = 21;
 uint8_t hidLightPin = 22;
 uint8_t sysInputPins[] = {13,18,19,20};
 int32_t encL=0;
+uint8_t turnT=0;
+unsigned long prevUp=millis();
+unsigned long prevDn=millis();
+
 /* current pin layout
  *  pins 18 - 23 = A0 - A5
  *  pins 2 to 10 = LED 1 to 7
@@ -45,9 +49,20 @@ int32_t encL=0;
 
 void doEncL(){
   if((ENCODER_PORT >> ENC_L_B_ADDR)&1){
-    encL--;
-  } else {
-    encL++;
+    //avoid jerking 
+    if(prevUp+5>millis()){
+      turnT=7;
+      encL=-127;
+    }
+      prevUp=millis();
+  } 
+  else {
+    //avoid jerking 
+    if(prevDn+5>millis()){
+      turnT=7;
+      encL=127;
+    }
+      prevDn=millis();
   }
 }
 
@@ -85,7 +100,13 @@ void loop() {
     }
   }
   // Read Encoders
-  report.xAxis = (uint8_t)((int32_t)(encL / ENCODER_SENSITIVITY) % 256);
+  if (turnT>0){
+    report.xAxis = encL;
+    turnT--; 
+  }
+  else{
+    report.xAxis = 0;
+  }
   // Light LEDs
   if(lightMode==0){
     lights(report.buttons);
