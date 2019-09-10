@@ -17,11 +17,11 @@ iivxReport_t report;
  */
 
 int tmp;
-uint8_t buttonCount = 9;
+uint8_t buttonCount = 10;
 uint8_t lightMode = 0;
 // 0 = reactive lighting, 1 = HID lighting
-uint8_t ledPins[] = {2,3,4,5,6,7,8,9,10};
-uint8_t buttonPins[] = {11,12,13,18,19,20,21,22,23};
+uint8_t ledPins[] = {2};
+uint8_t buttonPins[] = {10,11,12,13,18,19,20,21,22,23};
 //uint8_t sysPin = 11;
 uint8_t reactiveLightPin = 21;
 uint8_t hidLightPin = 22;
@@ -45,9 +45,9 @@ int32_t encL=0;
 
 void doEncL(){
   if((ENCODER_PORT >> ENC_L_B_ADDR)&1){
-    encL++;
-  } else {
     encL--;
+  } else {
+    encL++;
   }
 }
 
