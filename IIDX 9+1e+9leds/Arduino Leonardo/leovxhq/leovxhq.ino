@@ -27,10 +27,12 @@ uint8_t reactiveLightPin = 21;
 uint8_t hidLightPin = 22;
 uint8_t sysInputPins[] = {13,18,19,20};
 int32_t encL=0;
+int32_t encL2=0;
 uint8_t turnT=0;
 unsigned long prevUp=millis();
 unsigned long prevDn=millis();
-
+unsigned long prevTT=millis();
+bool LR2Mode=false;
 /* current pin layout
  *  pins 18 - 23 = A0 - A5
  *  pins 2 to 10 = LED 1 to 7
@@ -53,6 +55,7 @@ void doEncL(){
     if(prevUp+5>millis()){
       turnT=7;
       encL=-127;
+      encL2--;
     }
       prevUp=millis();
   } 
@@ -61,6 +64,7 @@ void doEncL(){
     if(prevDn+5>millis()){
       turnT=7;
       encL=127;
+      encL2++;
     }
       prevDn=millis();
   }
@@ -100,18 +104,36 @@ void loop() {
     }
   }
   // Read Encoders
-  if (turnT>0){
-    report.xAxis = encL;
-    turnT--; 
+  if (LR2Mode){
+    if (turnT>0){
+      report.xAxis = encL;
+      turnT--; 
+    }
+    else{
+      report.xAxis = 0;
+    }
+    
   }
   else{
-    report.xAxis = 0;
+      report.xAxis= (uint8_t)((int32_t)(encL2 / ENCODER_SENSITIVITY ) % 256);
   }
+
   // Light LEDs
   if(lightMode==0){
     lights(report.buttons);
   } else {
     lights(iivx_led);
+  }
+
+  //Change TT reporting mode
+  if(digitalRead(buttonPins[4])!=HIGH && digitalRead(buttonPins[0])!=HIGH){
+    if(prevTT+5000<millis()){
+     prevTT=millis(); 
+    }
+    else if(prevTT+500<millis()){
+     prevTT=millis();
+     LR2Mode=!LR2Mode; 
+    }
   }
   // Detect Syspin Entries
   //if(digitalRead(buttonPins[0])!=HIGH){
