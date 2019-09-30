@@ -20,7 +20,7 @@ int tmp;
 uint8_t buttonCount = 10;
 uint8_t lightMode = 0;
 // 0 = reactive lighting, 1 = HID lighting
-uint8_t ledPins[] = {2};
+uint8_t ledPins[] = {2,3,7,5,6,4,8,9,9,9};
 uint8_t buttonPins[] = {10,11,12,13,18,19,20,21,22,23};
 //uint8_t sysPin = 11;
 uint8_t reactiveLightPin = 21;
@@ -92,6 +92,20 @@ void loop() {
   } else {
     lights(iivx_led);
   }
+<<<<<<< Updated upstream
+=======
+
+  //Change TT reporting mode
+  if(digitalRead(buttonPins[7])!=HIGH && digitalRead(buttonPins[0])!=HIGH){
+    if(prevTT+5000<millis()){
+     prevTT=millis(); 
+    }
+    else if(prevTT+500<millis()){
+     prevTT=millis();
+     LR2Mode=!LR2Mode; 
+    }
+  }
+>>>>>>> Stashed changes
   // Detect Syspin Entries
   //if(digitalRead(buttonPins[0])!=HIGH){
   //  report.buttons = 0;
