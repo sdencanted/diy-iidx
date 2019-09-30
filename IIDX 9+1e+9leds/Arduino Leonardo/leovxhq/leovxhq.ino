@@ -27,6 +27,12 @@ uint8_t reactiveLightPin = 21;
 uint8_t hidLightPin = 22;
 uint8_t sysInputPins[] = {13,18,19,20};
 int32_t encL=0;
+int32_t encL2=0;
+uint8_t turnT=0;
+unsigned long prevUp=millis();
+unsigned long prevDn=millis();
+unsigned long prevTT=millis();
+bool LR2Mode=false;
 /* current pin layout
  *  pins 18 - 23 = A0 - A5
  *  pins 2 to 10 = LED 1 to 7
@@ -45,9 +51,22 @@ int32_t encL=0;
 
 void doEncL(){
   if((ENCODER_PORT >> ENC_L_B_ADDR)&1){
-    encL--;
-  } else {
-    encL++;
+    //avoid jerking 
+    if(prevUp+5>millis()){
+      turnT=7;
+      encL=-127;
+      encL2--;
+    }
+      prevUp=millis();
+  } 
+  else {
+    //avoid jerking 
+    if(prevDn+5>millis()){
+      turnT=7;
+      encL=127;
+      encL2++;
+    }
+      prevDn=millis();
   }
 }
 
@@ -85,27 +104,37 @@ void loop() {
     }
   }
   // Read Encoders
-  report.xAxis = (uint8_t)((int32_t)(encL / ENCODER_SENSITIVITY) % 256);
+  if (LR2Mode){
+    if (turnT>0){
+      report.xAxis = encL;
+      turnT--; 
+    }
+    else{
+      report.xAxis = 0;
+    }
+    
+  }
+  else{
+      report.xAxis= (uint8_t)((int32_t)(encL2 / ENCODER_SENSITIVITY ) % 256);
+  }
+
   // Light LEDs
   if(lightMode==0){
     lights(report.buttons);
   } else {
     lights(iivx_led);
   }
-<<<<<<< Updated upstream
-=======
-
-  //Change TT reporting mode
-  if(digitalRead(buttonPins[7])!=HIGH && digitalRead(buttonPins[0])!=HIGH){
-    if(prevTT+5000<millis()){
-     prevTT=millis(); 
-    }
-    else if(prevTT+500<millis()){
-     prevTT=millis();
      LR2Mode=!LR2Mode; 
     }
   }
->>>>>>> Stashed changes
+     prevTT=millis();
+    else if(prevTT+500<millis()){
+    }
+     prevTT=millis(); 
+    if(prevTT+5000<millis()){
+  if(digitalRead(buttonPins[7])!=HIGH && digitalRead(buttonPins[0])!=HIGH){
+
+  //Change TT reporting mode
   // Detect Syspin Entries
   //if(digitalRead(buttonPins[0])!=HIGH){
   //  report.buttons = 0;
