@@ -18,7 +18,7 @@ iivxReport_t report;
 
 int tmp;
 uint8_t buttonCount = 10;
-uint8_t lightMode = 0;
+bool lightMode = false;
 // 0 = reactive lighting, 1 = HID lighting
 uint8_t ledPins[] = {2,3,7,5,6,4,8,9,9,9};
 uint8_t buttonPins[] = {10,11,12,13,18,19,20,21,22,23};
@@ -32,6 +32,7 @@ uint8_t turnT=0;
 unsigned long prevUp=millis();
 unsigned long prevDn=millis();
 unsigned long prevTT=millis();
+unsigned long prevHID=millis();
 bool LR2Mode=false;
 /* current pin layout
  *  pins 18 - 23 = A0 - A5
@@ -119,20 +120,30 @@ void loop() {
   }
 
   // Light LEDs
-  if(lightMode==0){
+  if(lightMode){
     lights(report.buttons);
   } else {
     lights(iivx_led);
   }
-     LR2Mode=!LR2Mode; 
-    }
-  }
-     prevTT=millis();
-    else if(prevTT+500<millis()){
-    }
+  if(digitalRead(buttonPins[7])!=HIGH && digitalRead(buttonPins[8])!=HIGH && digitalRead(buttonPins[0])!=HIGH){ 
+    if(prevTT+5000<millis()){ 
+     prevTT=millis();  
+    } 
+    else if(prevTT+500<millis()){ 
      prevTT=millis(); 
-    if(prevTT+5000<millis()){
-  if(digitalRead(buttonPins[7])!=HIGH && digitalRead(buttonPins[0])!=HIGH){
+     LR2Mode=!LR2Mode;  
+    } 
+  }
+  if(digitalRead(buttonPins[7])!=HIGH && digitalRead(buttonPins[8])!=HIGH && digitalRead(buttonPins[1])!=HIGH){ 
+    if(prevHID+5000<millis()){ 
+     prevHID=millis();  
+    } 
+    else if(prevHID+500<millis()){ 
+     prevHID=millis(); 
+     lightMode=!lightMode;  
+    } 
+  }
+   
 
   //Change TT reporting mode
   // Detect Syspin Entries
